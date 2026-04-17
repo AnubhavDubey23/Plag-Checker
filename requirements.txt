@@ -1,0 +1,10 @@
+scikit-learn
+scikit-image
+openai
+numpy
+streamlit
+sentence-transformers
+scipy
+Pillow
+requests
+python-dotenv

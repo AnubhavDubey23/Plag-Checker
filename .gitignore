@@ -1,0 +1,8 @@
+venv
+__pycache__
+.env
+.streamlit/secrets.toml
+test_submissions/
+test_submissions.zip
+create_test_data.py
+*.pyc
