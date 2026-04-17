@@ -2,7 +2,16 @@ import os
 import requests
 from dotenv import load_dotenv
 load_dotenv()
-text_extract_api_key = os.getenv("text_extract_api_key")
+
+# Support both .env (local) and Streamlit Secrets (cloud deployment)
+try:
+    import streamlit as st
+    text_extract_api_key = st.secrets.get("text_extract_api_key", None)
+except Exception:
+    text_extract_api_key = None
+
+if not text_extract_api_key:
+    text_extract_api_key = os.getenv("text_extract_api_key")
 
 # Function to extract text from an image using OCR
 def extract_text(image_path):

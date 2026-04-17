@@ -1,16 +1,36 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
+# Support both .env (local) and Streamlit Secrets (cloud deployment)
+try:
+    import streamlit as st
+    openai_api_key = st.secrets.get("openai_api_key", None)
+except Exception:
+    openai_api_key = None
+
+if not openai_api_key:
+    openai_api_key = os.getenv("openai_api_key")
+
 from openai import OpenAI
-openai_api_key = os.getenv("openai_api_key")
 
+# Lazy client initialization - don't crash at import if key is missing
+_client = None
 
-client = OpenAI(
-    api_key=openai_api_key,
-)
+def _get_client():
+    global _client
+    if _client is None:
+        if not openai_api_key:
+            raise ValueError(
+                "OpenAI API key not found. Set it in .env file (local) "
+                "or Streamlit Secrets (cloud deployment)."
+            )
+        _client = OpenAI(api_key=openai_api_key)
+    return _client
+
 
 def compare_text_similarity(text1, text2):
-    # prompt = f"Text 1: {text1}\nText 2: {text2}\n"
+    client = _get_client()
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",  
