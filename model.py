@@ -55,7 +55,7 @@ def scan_for_plagiarism(submission_folder, checkbok):
                         st.write(f"\nLevel 1: Complete Plagiarism detected between {file1} and {file2}")
                         excluded_docs[submissions[j]] = True
                         # level1_list.append((file1, file2))
-                        cp_list.append((file1, file2))
+                        cp_list.append((file1, file2, submissions[i], submissions[j]))
 
                     # Adjust the threshold based on your requirements
                     elif similarity > 0.55:
@@ -72,15 +72,15 @@ def scan_for_plagiarism(submission_folder, checkbok):
                                 st.write(f"\nLevel 2: Complete Plagiarism detected between {file1} and {file2}")
                                 excluded_docs[submissions[j]] = True
                                 # level2_list.append((file1, file2))
-                                cp_list.append((file1, file2))
+                                cp_list.append((file1, file2, submissions[i], submissions[j]))
                             else:
                                 st.write(f"\nLevel 2: Potential Plagiarism detected between {file1} and {file2} with a UDP score = {similarity*100:.2f}% and Content Similarity score = {similarity_score*100:.2f}% ")
                                 # level2_list.append((file1, file2))
-                                pp_list.append((file1, file2))
+                                pp_list.append((file1, file2, submissions[i], submissions[j]))
                         else:
                             st.write(f"\nLevel 2: Potential Plagiarism detected between {file1} and {file2} with a UDP score = {similarity*100:.2f}%")
                             # level2_list.append((file1, file2))
-                            pp_list.append((file1, file2))
+                            pp_list.append((file1, file2, submissions[i], submissions[j]))
                     else:
                         # Extract text from the suspicious submissions
                         text1 = text_list[i]
@@ -95,11 +95,11 @@ def scan_for_plagiarism(submission_folder, checkbok):
                             if cos_sim >= 0.85:
                                 st.write(f"\nLevel 3: Complete Plagiarism detected between {file1} and {file2}")
                                 # level3_list.append((file1, file2))
-                                cp_list.append((file1, file2))
+                                cp_list.append((file1, file2, submissions[i], submissions[j]))
                             elif cos_sim >= 0.75:
                                 st.write(f"\nLevel 3: Potential Plagiarism detected between {file1} and {file2} with a similarity score = {similarity_score*100:.2f}%")
                                 # level3_list.append((file1, file2))
-                                pp_list.append((file1, file2))
+                                pp_list.append((file1, file2, submissions[i], submissions[j]))
                         else:
                             st.write(f"\nUnable to load extracted text for {file1} and {file2}")
             # Level 4 - Testing for Paraphrasing
@@ -116,7 +116,7 @@ def scan_for_plagiarism(submission_folder, checkbok):
                             paraphrased = extract_similarity_value(paraphrased) #extracting the integer value from the sentence, if openai returned sentencea as output instead of binary
                             if paraphrased:
                                 st.write(f"\nLevel 4: Potential Plagiarism detected between {file1} and {file2}")
-                                level4_list.append((submissions[i], submissions[j]))
+                                level4_list.append((file1, file2, submissions[i], submissions[j]))
                         else:
                             st.write(f"\nUnable to load extracted text for {file1} and {file2}")
                 # print(f"Level 4: Paraphrased Plagirism pairs - {level4_list}")
@@ -126,9 +126,29 @@ def scan_for_plagiarism(submission_folder, checkbok):
             # Final Result Printing
         # print("\n\n\n\n\n")
         with st.expander("Complete Plagiarism Pairs"):
-            st.write(f"Complete Plagiarism Pairs:- {cp_list}")
+            st.write(f"Complete Plagiarism Pairs:- {[(p[0], p[1]) for p in cp_list]}")
+            for p in cp_list:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(os.path.join(submission_folder, p[2]), caption=p[0], use_container_width=True)
+                with col2:
+                    st.image(os.path.join(submission_folder, p[3]), caption=p[1], use_container_width=True)
+                    
         with st.expander("Potential Plagiarism Pairs"):
-            st.write(f"Potential Plagiarism:- {pp_list}")
+            st.write(f"Potential Plagiarism:- {[(p[0], p[1]) for p in pp_list]}")
+            for p in pp_list:
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(os.path.join(submission_folder, p[2]), caption=p[0], use_container_width=True)
+                with col2:
+                    st.image(os.path.join(submission_folder, p[3]), caption=p[1], use_container_width=True)
+                    
         if checkbok:
             with st.expander("Paraphrased Plagirism pairs"):
-                st.write(f"Paraphrased Plagirism pairs - {level4_list}")
+                st.write(f"Paraphrased Plagirism pairs - {[(p[0], p[1]) for p in level4_list]}")
+                for p in level4_list:
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.image(os.path.join(submission_folder, p[2]), caption=p[0], use_container_width=True)
+                    with col2:
+                        st.image(os.path.join(submission_folder, p[3]), caption=p[1], use_container_width=True)
