@@ -38,10 +38,19 @@ def main():
 
                 with zipfile.ZipFile(uploaded_file, 'r') as zip_ref:
                     # Create the destination directory if it doesn't exist
-                    os.makedirs(extraction_dest, exist_ok=True)
+                    os.makedirs(destination_folder, exist_ok=True)
 
-                    # Extract files directly to the specified directory
-                    zip_ref.extractall(extraction_dest)
+                    # Flatten the zip extraction: extract all files directly into destination_folder
+                    for item in zip_ref.namelist():
+                        filename = os.path.basename(item)
+                        # Skip directories
+                        if not filename:
+                            continue
+                        
+                        source = zip_ref.open(item)
+                        target_path = os.path.join(destination_folder, filename)
+                        with open(target_path, "wb") as target:
+                            target.write(source.read())
                     # st.write("Files extracted.")
                     
                     # Run plagiarism detection when the user clicks the button
