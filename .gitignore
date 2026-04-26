@@ -6,3 +6,4 @@ test_submissions/
 test_submissions.zip
 create_test_data.py
 *.pyc
+log*.txt
